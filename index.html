@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rotina: hábitos gamificados</title>
+<meta name="theme-color" content="#F2F5FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1530" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rotina">
+<style>
+:root{--bg:#F2F5FB;--sf:#fff;--ink:#18214D;--mut:#5C668F;--line:#D9DFEF;--ac:#FF6B2C;--acink:#fff;--ok:#1E9E6A;--soft:#E6ECFA;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0F1530;--sf:#182046;--ink:#EAEFFF;--mut:#9AA6D6;--line:#2A3566;--ac:#FF8A4C;--acink:#1A0D05;--ok:#4CD39A;--soft:#222C5C;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.flame{display:flex;align-items:baseline;gap:4px;font-weight:800;font-size:44px;line-height:1;color:var(--ac)}
+small,.flame small{font-size:13px;font-weight:500;color:var(--mut)}
+.lvl{flex:1}.lvl b{font-size:14px}
+.bar{height:10px;border-radius:99px;background:var(--soft);overflow:hidden;margin:4px 0}
+.bar i{display:block;height:100%;background:var(--ac);border-radius:99px;transition:width .3s}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:14px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:none;color:var(--mut);font:inherit;font-weight:600;padding:9px 4px;border-radius:10px}
+.tabs button.on{background:var(--sf);color:var(--ink);box-shadow:0 1px 3px #0002}
+.card,.it{background:var(--sf);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.it{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.em{font-size:26px}.nm{flex:1;font-weight:600}.nm small{display:block}
+.ck{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:none;color:#fff;font-size:22px;font-weight:800}
+.it.done .ck{background:var(--ok);border-color:var(--ok)}
+.it.done .nm{opacity:.55;text-decoration:line-through}
+.ban{background:var(--soft);border-radius:14px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+.btn{display:block;width:100%;border:0;background:var(--ac);color:var(--acink);font:inherit;font-weight:700;padding:12px 16px;border-radius:12px}
+.btn.sec{background:var(--soft);color:var(--ink)}.btn.bad{background:none;color:#D6403A}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.grid .card{margin:0}.grid b{display:block;font-size:24px;font-weight:800;color:var(--ac)}
+.wk{display:flex;gap:6px;align-items:flex-end;height:90px;margin-top:8px}
+.wk div{flex:1;text-align:center;font-size:12px;color:var(--mut)}
+.wk i{display:block;background:var(--ok);border-radius:6px;margin-bottom:4px}
+.ach{display:flex;gap:12px;align-items:center;margin-bottom:10px}.ach.lock{opacity:.4;filter:grayscale(1)}
+h4{margin:16px 0 8px}
+.row2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.btns{display:flex;gap:8px;margin-top:10px}.btns .btn{flex:1}
+#ov{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:20}
+#ov.on{display:flex}
+.md{background:var(--sf);width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:92vh;overflow:auto}
+label{font-size:13px;font-weight:600;color:var(--mut)}
+input,textarea{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:8px 12px;font:inherit;font-size:14px;min-width:40px}
+.chip.on{background:var(--ac);color:var(--acink);border-color:var(--ac)}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;white-space:pre-line;text-align:center;z-index:30}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><div class="flame">🔥<span id="st">0</span><small>dias</small></div><div class="lvl"><b id="lv"></b><div class="bar"><i id="xb"></i></div><small id="xt"></small></div></div>
+<div class="tabs"><button data-t="hoje" class="on">Hoje</button><button data-t="rot">Rotinas</button><button data-t="moto">Moto</button><button data-t="con">Conquistas</button></div>
+<main id="m"></main>
+</div>
+<div id="ov"></div><div id="toast"></div>
+<script>
+(function(){
+var K="rotina-v1",S={h:[],l:{}},tab="hoje",tt;
+function norm(){S.q=S.q||{};S.dl=S.dl||[];S.c=S.c||{};S.g=S.g||[];S.bx=+S.bx||0}
+var BASE={1:10,2:20,3:40},TIT=["Iniciante","Aprendiz","Constante","Focado","Disciplinado","Imparável","Mestre","Lenda"];
+var DN=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],DL=["D","S","T","Q","Q","S","S"];
+var EM=["💧","🏃","📚","🧘","🛏️","🥗","💊","🧹","💻","✍️","🦷","🎯"];
+function $(i){return document.getElementById(i)}
+function p(n){return n<10?"0"+n:""+n}
+function ds(d){return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+function pd(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2])}
+function add(s,n){var d=pd(s);d.setDate(d.getDate()+n);return ds(d)}
+var T=ds(new Date());
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function load(){try{var r=localStorage.getItem(K);if(r){var o=JSON.parse(r);if(o&&o.h&&o.l)S=o}}catch(e){}norm()}
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function find(id){return S.h.filter(function(h){return h.id===id})[0]}
+function sched(h,d){return d>=h.s&&(!h.e||d<h.e)&&h.d.indexOf(pd(d).getDay())>=0}
+function dl(d){return d.length===7?"Todos os dias":d.map(function(i){return DN[i]}).join(", ")}
+function calc(){
+ var xp=S.bx,chk=0,run=0,best=0,perfect=0,hb=0,nq=0,hs={},info={},first=T;
+ S.h.forEach(function(h){if(h.s<first)first=h.s});
+ Object.keys(S.q).forEach(function(k){if(k<first)first=k});
+ for(var d=first;d<=T;d=add(d,1)){
+  var t=0,n=0,lg=S.l[d]||{},sc=S.h.filter(function(h){return sched(h,d)}),tr=!!S.c[d]&&sc.some(function(h){return h.q});
+  sc.forEach(function(h){
+   var rq=!tr||h.q;
+   if(rq)t++;
+   if(lg[h.id]){if(rq)n++;chk++;hs[h.id]=(hs[h.id]||0)+1;hb=Math.max(hb,hs[h.id]);xp+=Math.round(BASE[h.x]*(1+Math.min(4,Math.floor(hs[h.id]/7))*.25))}
+   else if(d<T&&rq)hs[h.id]=0;
+  });
+  var q=S.q[d]||0;nq+=q;xp+=q;
+  if(t>0){if(n===t){xp+=20;perfect++;run++;best=Math.max(best,run)}else if(d<T)run=0}
+  info[d]={t:t,n:n};
+ }
+ xp+=25*S.dl.length;
+ return{xp:xp,chk:chk,run:run,best:best,perfect:perfect,hs:hs,hb:hb,info:info,nq:nq,nd:S.dl.length,lvl:Math.floor(Math.sqrt(xp/50))+1}
+}
+function wkStart(){var d=new Date();return ds(new Date(d.getFullYear(),d.getMonth(),d.getDate()-(d.getDay()+6)%7))}
+function wk(){
+ var k=wkStart(),r={min:{},cnt:{},q:0,dl:0};
+ for(var i=0;i<7;i++){var x=add(k,i),lg=S.l[x]||{};
+  S.h.forEach(function(h){if(!lg[h.id])return;(h.tg||[]).forEach(function(g){r.cnt[g]=(r.cnt[g]||0)+1;r.min[g]=(r.min[g]||0)+(h.mn||0)})});
+  r.q+=S.q[x]||0}
+ S.dl.forEach(function(e){if(e.d>=k&&e.d<=add(k,6))r.dl+=e.h});
+ return r}
+var AC=[
+["👣","Primeiro passo","Conclua 1 tarefa",function(c){return c.chk>=1}],
+["💪","Pegando ritmo","10 tarefas concluídas",function(c){return c.chk>=10}],
+["🏅","Meio caminho","50 tarefas concluídas",function(c){return c.chk>=50}],
+["🏆","Centurião","100 tarefas concluídas",function(c){return c.chk>=100}],
+["🔥","3 em sequência","3 dias perfeitos seguidos",function(c){return c.best>=3}],
+["🌟","Semana perfeita","7 dias perfeitos seguidos",function(c){return c.best>=7}],
+["🛡️","Mês de ferro","30 dias perfeitos seguidos",function(c){return c.best>=30}],
+["✨","Hábito formado","21 dias seguidos em uma rotina",function(c){return c.hb>=21}],
+["🎯","10 dias perfeitos","Complete tudo em 10 dias",function(c){return c.perfect>=10}],
+["⭐","Nível 5","Chegue ao nível 5",function(c){return c.lvl>=5}],
+["❓","100 questões","Resolva 100 questões",function(c){return c.nq>=100}],
+["🏍️","Primeiro turno","Registre 1 turno de delivery",function(c){return c.nd>=1}]
+];
+function hdr(c){var L=c.lvl,b=50*(L-1)*(L-1),n=50*L*L;$("st").textContent=c.run;$("lv").textContent="Nível "+L+" · "+TIT[Math.min(L-1,TIT.length-1)];$("xb").style.width=Math.round((c.xp-b)/(n-b)*100)+"%";$("xt").textContent=c.xp+" XP · faltam "+(n-c.xp)+" para o nível "+(L+1)}
+function qcard(){return '<div class="card"><div class="row2"><span>Questões resolvidas hoje</span><b>'+(S.q[T]||0)+'</b></div><small>Cada questão vale 1 XP.</small><div class="btns"><button class="btn sec" data-a="qa" data-i="10">+10</button><button class="btn sec" data-a="qa" data-i="25">+25</button><button class="btn sec" data-a="qa" data-i="-10">−10</button></div></div>'}
+function vHoje(c){
+ var hs=S.h.filter(function(h){return sched(h,T)}),lg=S.l[T]||{},hq=hs.some(function(h){return h.q}),tr=!!S.c[T]&&hq,o="";
+ if(!S.h.length)return '<div class="card"><b>Bem-vindo! 🔥</b><p>Cadastre suas rotinas (beber água, treinar, estudar…). O app calcula XP, nível, ofensiva e conquistas sozinho.</p><button class="btn" data-a="new">Criar primeira rotina</button></div>';
+ if(!hs.length)return '<div class="card">Nada agendado para hoje. Aproveite o descanso 😌</div>'+qcard();
+ var L=tr?hs.filter(function(h){return h.q}):hs,n=0;
+ L.forEach(function(h){if(lg[h.id])n++});
+ var msg=n===L.length?(tr?"Mínimo cumprido! 🎉 Vitória do dia, ofensiva mantida.":"Dia completo! 🎉 Bônus de +20 XP garantido."):(c.run>0?"Faltam "+(L.length-n)+" para manter sua ofensiva de "+c.run+" dia"+(c.run>1?"s":"")+" 🔥":"Complete tudo hoje para começar uma ofensiva 🔥");
+ o+='<div class="ban">'+msg+'<div class="bar"><i style="width:'+Math.round(n/L.length*100)+'%"></i></div><small>'+n+" de "+L.length+" concluídas</small></div>";
+ if(hq)o+='<button class="btn sec" data-a="tr" style="margin-bottom:12px">😮‍💨 Modo cansaço'+(tr?": ligado, só o essencial":"")+"</button>";
+ L.sort(function(a,b){return (a.t||"99:99").localeCompare(b.t||"99:99")||a.n.localeCompare(b.n)}).forEach(function(h){
+  var dn=lg[h.id];
+  o+='<div class="it'+(dn?" done":"")+'" data-a="tg" data-i="'+h.id+'"><button class="ck">'+(dn?"✓":"")+'</button><span class="em">'+h.m+'</span><div class="nm">'+esc(h.n)+'<small>'+(h.t?h.t+" · ":"")+"🔥 "+(c.hs[h.id]||0)+" · +"+BASE[h.x]+" XP</small></div></div>"});
+ return o+qcard();
+}
+function vMetas(){
+ if(!S.g.length)return"";
+ var w=wk(),o='<h4 style="margin-top:0">Metas da semana</h4>';
+ S.g.forEach(function(g,i){
+  var v=g.k==="q"?w.q:g.k==="dl"?w.dl:g.k==="min"?(w.min[g.tg]||0)/60:(w.cnt[g.tg]||0),u=g.k==="min"||g.k==="dl"?"h":"";
+  o+='<div class="card" data-a="gt" data-i="'+i+'"><div class="row2"><span>'+esc(g.n)+'</span><span>'+Math.round(v*10)/10+" / "+g.t+u+(v>=g.t?" ✅":"")+'</span></div><div class="bar"><i style="width:'+Math.min(100,Math.round(v/g.t*100))+'%"></i></div></div>'});
+ return o+'<small>Toque em uma meta para mudar o valor.</small><div style="height:14px"></div>'
+}
+function vMoto(){
+ var k=wkStart(),g=0,c=0,h=0,km=0,f=function(v){return v.toFixed(2).replace(".",",")};
+ S.dl.filter(function(x){return x.d>=k&&x.d<=add(k,6)}).forEach(function(x){g+=x.g;c+=x.f;h+=x.h;km+=x.k});
+ var net=h?(g-c)/h:0,best=S.dl.filter(function(x){return x.h>0}).sort(function(a,b){return (b.g-b.f)/b.h-(a.g-a.f)/a.h})[0];
+ var s='<div class="card"><b>Registrar turno</b><div class="grid" style="margin-top:8px">'+[["g","Ganho bruto (R$)"],["f","Combustível (R$)"],["h","Horas rodadas"],["k","Km rodados"]].map(function(x){return'<div><label>'+x[1]+'</label><input id="dl_'+x[0]+'" type="number" inputmode="decimal"></div>'}).join("")+'</div><div style="height:10px"></div><button class="btn" data-a="lg">Salvar turno (+25 XP)</button>'+(S.dl.length?'<div style="height:8px"></div><button class="btn sec" data-a="ud">Desfazer último turno</button>':"")+"</div>";
+ s+='<div class="card"><div class="row2"><span>Líquido por hora (semana)</span><b style="font-size:22px;color:var(--ac)">R$ '+f(net)+"</b></div><small>Bruto R$ "+g.toFixed(0)+" · combustível R$ "+c.toFixed(0)+" · "+h.toFixed(1)+"h · "+km.toFixed(0)+" km</small>"+(best?"<br><small>Melhor turno: R$ "+f((best.g-best.f)/best.h)+"/h</small>":"")+"</div>";
+ return s+'<div class="card"><small>Limite de segurança: no máximo 4h por turno. Duas noites ruins seguidas? Cancele o delivery seguinte.</small></div>'
+}
+function vRot(){
+ var hs=S.h.filter(function(h){return !h.e||h.e>T}),o='<button class="btn" data-a="new" style="margin-bottom:12px">+ Nova rotina</button>';
+ if(!hs.length)o+='<div class="card">Nenhuma rotina ainda.</div>';
+ hs.forEach(function(h){o+='<div class="it" data-a="ed" data-i="'+h.id+'"><span class="em">'+h.m+'</span><div class="nm">'+esc(h.n)+"<small>"+dl(h.d)+(h.t?" · "+h.t:"")+" · "+["","Fácil","Médio","Difícil"][h.x]+" +"+BASE[h.x]+" XP</small></div><small>Editar ›</small></div>"});
+ return o;
+}
+function vCon(c){
+ var o=vMetas()+'<div class="grid"><div class="card"><b>'+c.xp+'</b><small>XP total</small></div><div class="card"><b>'+c.chk+'</b><small>tarefas feitas</small></div><div class="card"><b>'+c.best+'</b><small>melhor ofensiva</small></div><div class="card"><b>'+c.perfect+'</b><small>dias perfeitos</small></div></div>';
+ o+='<div class="card"><b>Últimos 7 dias</b><div class="wk">';
+ for(var i=6;i>=0;i--){var d=add(T,-i),f=c.info[d]||{t:0,n:0},pc=f.t?f.n/f.t:0;o+='<div><i style="height:'+Math.max(4,Math.round(pc*60))+'px;opacity:'+(f.t?1:.25)+'"></i>'+DL[pd(d).getDay()]+"</div>"}
+ o+="</div></div><h4>Conquistas</h4>";
+ AC.forEach(function(f){var u=f[3](c);o+='<div class="ach'+(u?"":" lock")+'"><span class="em">'+f[0]+'</span><div><b>'+f[1]+"</b><br><small>"+f[2]+"</small></div></div>"});
+ o+='<h4>Como o XP funciona</h4><div class="card"><small>Cada tarefa dá 10, 20 ou 40 XP conforme a dificuldade. Manter a mesma rotina por 7 dias seguidos aumenta o ganho em 25% (até o dobro). Concluir todas as tarefas do dia dá +20 XP e mantém a ofensiva. Cada questão vale 1 XP e cada turno de delivery, 25 XP. No modo cansaço, só as tarefas essenciais contam para o dia.</small></div><div style="height:12px"></div><button class="btn sec" data-a="bk">Backup dos dados</button>';
+ return o;
+}
+function render(){
+ T=ds(new Date());var c=calc();hdr(c);
+ $("m").innerHTML=tab==="hoje"?vHoje(c):tab==="rot"?vRot():tab==="moto"?vMoto():vCon(c);
+ [].forEach.call(document.querySelectorAll(".tabs button"),function(b){b.classList.toggle("on",b.dataset.t===tab)});
+}
+function toast(m){var t=$("toast");t.textContent=m;t.className="show";clearTimeout(tt);tt=setTimeout(function(){t.className=""},2400)}
+function toggle(id){
+ var b=calc(),lg=S.l[T]||(S.l[T]={});
+ if(lg[id])delete lg[id];else lg[id]=1;
+ if(!Object.keys(lg).length)delete S.l[T];
+ save();var a=calc(),msg=[];
+ if(a.xp>b.xp){msg.push("+"+(a.xp-b.xp)+" XP");if(a.lvl>b.lvl)msg.push("Nível "+a.lvl+"! 🎉");AC.forEach(function(f){if(f[3](a)&&!f[3](b))msg.push(f[0]+" "+f[1])})}
+ render();if(msg.length)toast(msg.join("\n"));
+}
+var ov=$("ov");
+function closeOv(){ov.classList.remove("on");ov.innerHTML=""}
+ov.addEventListener("click",function(e){if(e.target===ov)closeOv()});
+function tagChips(h){
+ var seen={},l=S.g.filter(function(g){if(!g.tg||seen[g.tg])return false;return seen[g.tg]=1});
+ return l.length?'<label>Conta para a meta</label><div class="row">'+l.map(function(g){return '<button class="chip'+((h.tg||[]).indexOf(g.tg)>=0?" on":"")+'" data-a="pk" data-g="g" data-v="'+esc(g.tg)+'">'+esc(g.n)+"</button>"}).join("")+"</div>":""
+}
+function openForm(id){
+ var h=id?find(id):null;h=h||{n:"",m:EM[0],d:[1,2,3,4,5],x:2,t:""};
+ var o='<h3 style="margin:0 0 12px">'+(id?"Editar rotina":"Nova rotina")+'</h3><label>Nome</label><input id="fn" maxlength="40" placeholder="Ex.: Beber 2 L de água" value="'+esc(h.n)+'"><div style="height:14px"></div><label>Ícone</label><div class="row">';
+ EM.forEach(function(e){o+='<button class="chip'+(e===h.m?" on":"")+'" data-a="pk" data-g="m" data-v="'+e+'">'+e+"</button>"});
+ o+='</div><label>Dias</label><div class="row">';
+ DL.forEach(function(l,i){o+='<button class="chip'+(h.d.indexOf(i)>=0?" on":"")+'" data-a="pk" data-g="d" data-v="'+i+'">'+l+"</button>"});
+ o+='</div><label>Dificuldade</label><div class="row">';
+ [[1,"Fácil +10"],[2,"Médio +20"],[3,"Difícil +40"]].forEach(function(x){o+='<button class="chip'+(x[0]===h.x?" on":"")+'" data-a="pk" data-g="x" data-v="'+x[0]+'">'+x[1]+"</button>"});
+ o+='</div><label>Modo cansaço</label><div class="row"><button class="chip'+(h.q?" on":"")+'" data-a="pk" data-g="q" data-v="1">⚡ Essencial</button></div>'+tagChips(h)+'<label>Duração em minutos (opcional)</label><input id="fm" type="number" inputmode="numeric" value="'+(h.mn||"")+'"><div style="height:14px"></div><label>Horário (opcional)</label><input id="ft" type="time" value="'+(h.t||"")+'"><p id="er" style="color:#D6403A;margin:8px 0"></p><button class="btn" data-a="sv" data-i="'+(id||"")+'">Salvar</button><div style="height:8px"></div><button class="btn sec" data-a="cl">Cancelar</button>'+(id?'<button class="btn bad" data-a="rm" data-i="'+id+'">Excluir rotina</button>':"");
+ ov.innerHTML='<div class="md">'+o+"</div>";ov.classList.add("on");
+}
+function saveForm(id){
+ var n=$("fn").value.trim(),pick=function(g){var x=ov.querySelector('.chip.on[data-g="'+g+'"]');return x&&x.dataset.v},
+ d=[].map.call(ov.querySelectorAll('.chip.on[data-g="d"]'),function(x){return +x.dataset.v}),m=pick("m"),x=+pick("x"),t=$("ft").value,q=!!ov.querySelector('.chip.on[data-g="q"]'),tg=[].map.call(ov.querySelectorAll('.chip.on[data-g="g"]'),function(y){return y.dataset.v}),mn=+$("fm").value||0;
+ if(!n){$("er").textContent="Dê um nome para a rotina.";return}
+ if(!d.length){$("er").textContent="Escolha pelo menos um dia.";return}
+ if(id){var h=find(id);h.n=n;h.m=m;h.d=d;h.x=x;h.t=t;h.q=q;h.tg=tg;h.mn=mn}
+ else S.h.push({id:Date.now().toString(36),n:n,m:m,d:d,x:x,t:t,q:q,tg:tg,mn:mn,s:T});
+ save();closeOv();render();
+}
+function rmHabit(id){
+ if(!confirm("Excluir esta rotina? O histórico dela até hoje é mantido."))return;
+ var h=find(id);if(h.s>=T)S.h=S.h.filter(function(x){return x.id!==id});else h.e=T;
+ save();closeOv();render();
+}
+function openBackup(){
+ ov.innerHTML='<div class="md"><h3 style="margin:0 0 8px">Backup</h3><small>Copie este texto e guarde em uma nota. Para restaurar, cole o texto aqui e toque em Restaurar.</small><div style="height:10px"></div><textarea id="bk" rows="6"></textarea><div style="height:12px"></div><button class="btn" data-a="cp">Copiar</button><div style="height:8px"></div><button class="btn sec" data-a="rs">Restaurar do texto acima</button><div style="height:8px"></div><button class="btn sec" data-a="cl">Fechar</button></div>';
+ $("bk").value=JSON.stringify(S);ov.classList.add("on");
+}
+function copyBk(){var t=$("bk"),ok=function(){toast("Copiado!")};t.select();
+ (navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(ok,function(){try{document.execCommand("copy");ok()}catch(e){}})}
+function restoreBk(){
+ try{var o=JSON.parse($("bk").value);if(!o||!Array.isArray(o.h)||typeof o.l!=="object")throw 0;
+  if(!confirm("Substituir seus dados atuais por este backup?"))return;
+  S=o;norm();save();closeOv();render();toast("Backup restaurado")}catch(e){toast("Texto de backup inválido")}
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("[data-t]");
+ if(b){tab=b.dataset.t;render();return}
+ var el=e.target.closest("[data-a]");if(!el)return;
+ var a=el.dataset.a,i=el.dataset.i;
+ if(a==="tg")toggle(i);
+ else if(a==="new")openForm();
+ else if(a==="ed")openForm(i);
+ else if(a==="pk"){if("dgq".indexOf(el.dataset.g)>=0)el.classList.toggle("on");else{[].forEach.call(el.parentNode.children,function(x){x.classList.remove("on")});el.classList.add("on")}}
+ else if(a==="sv")saveForm(i);
+ else if(a==="rm")rmHabit(i);
+ else if(a==="cl")closeOv();
+ else if(a==="tr"){if(S.c[T])delete S.c[T];else S.c[T]=1;save();render()}
+ else if(a==="qa"){S.q[T]=Math.max(0,(S.q[T]||0)+ +i);if(!S.q[T])delete S.q[T];save();render()}
+ else if(a==="lg"){var g=+$("dl_g").value,f=+$("dl_f").value,h=+$("dl_h").value,k=+$("dl_k").value;if(!g||!h){toast("Preencha ganho e horas");return}S.dl.push({d:T,g:g,f:f||0,h:h,k:k||0});save();render();toast("Turno salvo! +25 XP")}
+ else if(a==="ud"){if(confirm("Desfazer o último turno registrado?")){S.dl.pop();save();render()}}
+ else if(a==="gt"){var gl=S.g[+i],v=prompt("Nova meta para "+gl.n+":",gl.t);if(v!==null){v=parseFloat(String(v).replace(",","."));if(v>0){gl.t=v;save();render()}}}
+ else if(a==="bk")openBackup();
+ else if(a==="cp")copyBk();
+ else if(a==="rs")restoreBk();
+});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&ds(new Date())!==T)render()});
+load();render();
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+})();
+</script>
+</body>
+</html>
